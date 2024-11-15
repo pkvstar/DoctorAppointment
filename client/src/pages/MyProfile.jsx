@@ -1,25 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
-import axios from 'axios';
 
 const MyProfile = () => {
-  const [user, setUser] = useState(null);
+  const { isAuthenticated, userData } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/user/profile',{withCredentials: true});
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
-    };
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
-    fetchUserDetails();
-  }, []);
+  if (!isAuthenticated) {
+    return null;
+  }
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!userData) {
+    return (
+      <>
+        <Navbar />
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -42,32 +48,32 @@ const MyProfile = () => {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <div>
                   <p className='text-gray-500 text-sm'>Full Name</p>
-                  <p className='text-base md:text-lg'>{user.fullName}</p>
+                  <p className='text-base md:text-lg'>{userData.fullName}</p>
                 </div>
 
                 <div>
                   <p className='text-gray-500 text-sm'>Email Address</p>
-                  <p className='text-base md:text-lg break-words'>{user.email}</p>
+                  <p className='text-base md:text-lg break-words'>{userData.email}</p>
                 </div>
 
                 <div>
                   <p className='text-gray-500 text-sm'>Address</p>
-                  <p className='text-base md:text-lg'>{user.address}</p>
+                  <p className='text-base md:text-lg'>{userData.address}</p>
                 </div>
 
                 <div>
                   <p className='text-gray-500 text-sm'>Age</p>
-                  <p className='text-base md:text-lg'>{user.age}</p>
+                  <p className='text-base md:text-lg'>{userData.age}</p>
                 </div>
 
                 <div>
                   <p className='text-gray-500 text-sm'>Blood Group</p>
-                  <p className='text-base md:text-lg'>{user.bloodType}</p>
+                  <p className='text-base md:text-lg'>{userData.bloodType}</p>
                 </div>
 
                 <div>
                   <p className='text-gray-500 text-sm'>Gender</p>
-                  <p className='text-base md:text-lg'>{user.gender}</p>
+                  <p className='text-base md:text-lg'>{userData.gender}</p>
                 </div>
               </div>
             </div>

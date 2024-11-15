@@ -2,10 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connection = require('./config/connection');
-const authRoutes = require('./routes/auth');
-const authMiddleware = require('./middleware/auth');
-const userRoutes = require('./routes/user');
+const path = require('path');
 const Patient = require('./models/Patient');
+const User = require('./models/User');
+// const authRoutes = require('./routes/auth');
+// const authMiddleware = require('./middleware/auth');
+// const userRoutes = require('./routes/user');
+
+const jwtSecret = "pkv"
+const PORT = 5000;
 
 const app = express();
 
@@ -14,35 +19,110 @@ app.use(cors({
   credentials: true 
 }));
 
+//? Connect to MongoDB database
+try {
+  connection();
+} catch (error) {
+  console.log('Database connection error:');
+}connection();
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname,'public')));
 
-connection();
 
-app.use('/api/auth', authRoutes);
-app.use('/api/user', userRoutes);
+const jwt = require('jsonwebtoken');
 
-// Example of a protected route
-app.get('/api/protected', authMiddleware, (req, res) => {
-  res.json({ message: 'This is a protected route', user: req.user });
-});
+//? Register
+app.post('/api/register',async (req,res)=>{
+  const { fullName, email, password, gender, age, bloodType, address } = req.body;
+  if (!fullName || !email || !password || !gender || !age || !bloodType || !address) {
+    return res.status(400).json({ message: 'Please fill all required fields' });
+  }
+  const checkExist = await User.findOne({email});
+  if(checkExist){
+    return res.status(400).json({ message: 'Email is already registered' });
+  }
+  await Patient.create({
+    fullName, email, password, gender, age, bloodType, address ,role:"patient"
+  })
+  await User.create({
+    email, password , role:"patient"
+  })
+  return res.status(201).json({ message: 'Patient registered successfully' });
+})
 
-app.get('/api/user/profile', authMiddleware, async (req, res) => {
+
+
+//? LOGIN
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
   try {
-    console.log("comes");  
-    const user = await Patient.findById(req.user.userId);
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(401).json({ message: 'Invalid credentials' }); 
     }
-    res.json(user);
+
+    if (user.password !== password) { //! i will use bcrypt here
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role, email: user.email }, jwtSecret);
+    res.cookie('token', token);
+    
+    return res.status(200).json({ 
+      message: 'Logged in successfully',
+      role: user.role
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching user details' });
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 
-const PORT = process.env.PORT || 5000;
+
+//? Authenticate the user using cookie
+app.get('/api/check-auth', (req, res) => {
+  const token = req.cookies.token;
+  if (!token) return res.json({ isAuthenticated: false });
+
+  jwt.verify(token, jwtSecret, async (err, data) => {
+    if (err) return res.json({ isAuthenticated: false });
+    
+    try {
+      if (data.role === 'patient') {
+        const patient = await Patient.findOne({ email: data.email });
+        if (!patient) {
+          return res.json({ isAuthenticated: false });
+        }
+        return res.json({ 
+          isAuthenticated: true, 
+          role: data.role, 
+          dataRole: patient
+        });
+      }
+      else if (data.role === 'doctor') {
+        // Handle doctor logic here
+      }
+      else {
+        // Handle admin logic here
+      }
+    } catch (error) {
+      console.error('Auth check error:', error);
+      return res.json({ isAuthenticated: false });
+    }
+  });
+});
+
+//? LOGOUT
+app.post('/api/logout', (req, res) => {
+  try {
+    res.clearCookie('token');
+    return res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error logging out' });
+  }
+});
+
+//? PORT listen
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-

@@ -18,11 +18,11 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import AdminAppointment from './pages/Admin/AdminAppointment';
 import AdminAllDoctors from './pages/Admin/AdminAllDoctors';
 import AdminDoctorReq from './pages/Admin/AdminDoctorAdd';
-import AuthContextProvider from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   return (
-    <AuthContextProvider>
+    <AuthProvider>
       <div className='mx-4'>
         <ToastContainer />
         <Routes>
@@ -45,7 +45,7 @@ const App = () => {
           <Route path='*' element={<Notexist />} />
         </Routes>
       </div>
-    </AuthContextProvider>
+    </AuthProvider>
   );
 };
 

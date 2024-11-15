@@ -2,30 +2,32 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../Components/Navbar';
-import { login } from '../services/authService';
+// import { login } from '../services/authService';
+// import { AuthContext } from '../context/AuthContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { updateAuthStatus, checkAuth } = useContext(AuthContext);
+  const { login , isAuthenticated} = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
-      await login({ email, password });
-      await checkAuth();
-      updateAuthStatus(true);
+      const response = await login({ email, password });
       toast.success('Logged in successfully');
-      navigate('/myProfile');
+      if (response.role === 'patient') {
+        navigate('/myProfile');
+      }
     } catch (error) {
-      toast.error(error.error || 'Login failed');
+      toast.error(error.response?.data?.message || 'Login failed');
     }
   };
 
   return (
     <>
       <Navbar />
+      { !isAuthenticated ? 
       <div className='w-full flex justify-center items-center'>
         <div id="login-main" className='shadow-2xl flex flex-col gap-2 w-[22rem] h-[53vh] mt-24 p-10 font-Outfit font-medium rounded-xl'>
           <h1 className='text-2xl mb-3'>Login</h1>
@@ -47,7 +49,9 @@ const Login = () => {
           <button className='p-2 bg-darkBlue rounded-lg text-white mb-5' onClick={handleLogin}>Login</button>
           <p>create a new account - <a onClick={() => navigate("/register")} className='cursor-pointer text-blue-600 decoration-1 underline'>Click here</a></p>
         </div>
-      </div>
+      </div> :
+      <h1>Already Registered</h1>
+      }
     </>
   );
 };

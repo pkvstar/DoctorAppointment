@@ -9,6 +9,15 @@ const Navbar = () => {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login'); 
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <div className='text-sm flex justify-between items-center font-Poppins py-4 mb-5 border-b-slate-500 border-b'>
       <img src={NavLogo} className='w-48 cursor-pointer' alt="HealthLink Logo" />
@@ -35,12 +44,17 @@ const Navbar = () => {
               <div className='min-w-40 bg-stone-300 rounded-lg flex flex-col gap-3 p-3'>
                 <p onClick={() => navigate('/myProfile')} className='hover:text-black'>My Profile</p>
                 <p onClick={() => navigate('/myAppointments')} className='hover:text-black'>My Appointment</p>
-                <p onClick={logout} className='hover:text-red-600'>Logout</p>
+                <p onClick={handleLogout} className='hover:text-red-600'>Logout</p>
               </div>
             </div>
           </div>
         ) : (
-          <button onClick={() => navigate("/register")} className='hidden md:block active:scale-90 bg-darkBlue px-8 py-3 text-white rounded-full font-light'>Create account</button>
+          <button 
+            onClick={() => navigate("/register")} 
+            className='hidden md:block active:scale-90 bg-darkBlue px-8 py-3 text-white rounded-full font-light'
+          >
+            Create account
+          </button>
         )}
       </div>
     </div>

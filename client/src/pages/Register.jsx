@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
-import { register } from '../services/authService';
+import axios from 'axios';
+// import { register } from '../services/authService';
 import { toast } from 'react-toastify';
 
 const Register = () => {
@@ -21,10 +22,16 @@ const Register = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
+  // try {
+    //     const response = await axios.post(`${API_URL}/register`, userData);
+    //     return response.data;
+    //   } catch (error) {
+    //     throw error.response.data;
+    //   }
   const handleRegister = async () => {
     try {
-      await register(formData); // Send formData directly
+      // /api/register // Send formData directly
+      const response = await axios.post("http://localhost:5000/api/register",formData);
       toast.success('Registered successfully');
       navigate('/login'); // Redirect to login
     } catch (error) {

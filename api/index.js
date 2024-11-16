@@ -5,6 +5,7 @@ const connection = require('./config/connection');
 const path = require('path');
 const Patient = require('./models/Patient');
 const User = require('./models/User');
+const Admin = require('./models/Admin');
 // const authRoutes = require('./routes/auth');
 // const authMiddleware = require('./middleware/auth');
 // const userRoutes = require('./routes/user');
@@ -53,6 +54,29 @@ app.post('/api/register',async (req,res)=>{
   return res.status(201).json({ message: 'Patient registered successfully' });
 })
 
+//? registeration for admin not to shown on frontend only call using postman
+app.post('/api/admin/register',async (req,res)=>{
+  const {name , email , password} = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please fill all required fields' });
+  }
+  const checkExist = await User.findOne({email});
+  if(checkExist){
+    return res.status(400).json({ message: 'Email is already registered' });
+  }
+  try{
+    await User.create({
+      email, password, role:"admin"
+    })
+    await Admin.create({
+      name, email, password
+    })
+    return res.status(201).json({ message: 'Admin registered successfully' });
+  }
+  catch(err){
+    return res.status(500).json({ message: 'Error in registering admin' });
+  }
+})
 
 
 //? LOGIN
@@ -98,14 +122,22 @@ app.get('/api/check-auth', (req, res) => {
         return res.json({ 
           isAuthenticated: true, 
           role: data.role, 
-          dataRole: patient
+          dataRole: patient //my whole data according to role
         });
       }
       else if (data.role === 'doctor') {
         // Handle doctor logic here
       }
       else {
-        // Handle admin logic here
+        const admin = await Admin.findOne({ email: data.email });
+        if (!admin) {
+          return res.json({ isAuthenticated: false });
+        }
+        return res.json({ 
+          isAuthenticated: true, 
+          role: data.role, 
+          dataRole: admin
+        });
       }
     } catch (error) {
       console.error('Auth check error:', error);

@@ -2,21 +2,29 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
+import { toast } from 'react-toastify';
 
 const MyProfile = () => {
-  const { isAuthenticated, userData } = useAuth();
+  const { isAuthenticated, userData ,userRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if(!isAuthenticated){
       navigate('/login');
+    }
+    if(userRole !== 'patient'){
+      toast.error('You are not a Patient');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
+  // if (!isAuthenticated) {
+  //   return null;
+  // }
+  // if(userRole !== 'patient'){
+  //   toast.error('You are not a Patient');
+  //   navigate('/login');
+  // }
   if (!userData) {
     return (
       <>
@@ -30,7 +38,7 @@ const MyProfile = () => {
 
   return (
     <>
-      <Navbar />
+      <Navbar /> 
       <div className='w-full flex justify-center items-center px-4'>
         <div className='shadow-2xl w-full max-w-[50rem] mt-10 p-4 md:p-10 font-Outfit rounded-xl'>
           <div className='flex flex-col md:flex-row gap-8'>

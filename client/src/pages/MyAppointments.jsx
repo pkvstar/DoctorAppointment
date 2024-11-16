@@ -1,6 +1,21 @@
-import React from 'react'
+import React ,{ useEffect } from 'react'
 import Navbar from '../Components/Navbar'
+import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const MyAppointments = () => {
+  const { isAuthenticated, userData ,userRole } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!isAuthenticated){
+      navigate('/login');
+    }
+    if(userRole !== 'patient'){
+      toast.error('You are not a Patient');
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
   return (
     <>
     <Navbar />

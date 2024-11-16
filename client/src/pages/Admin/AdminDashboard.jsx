@@ -1,7 +1,38 @@
-import React from 'react'
 import AdminNavbar from '../../Components/AdminNavbar'
+import React, { useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
+  const { isAuthenticated, userData ,userRole } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!isAuthenticated){
+      navigate('/login');
+    }
+    if(userRole !== 'admin'){
+      toast.error('You are not an admin');
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+//   if (!isAuthenticated) {
+//     return null;
+//   }
+//   if(userRole !== 'admin'){
+//     toast.error('You are not an Admin');
+//     navigate('/login');
+//   }
+  if (!userData) {
+    return (
+      <>
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      </>
+    );
+  }
   return (
     <div>
         <AdminNavbar />

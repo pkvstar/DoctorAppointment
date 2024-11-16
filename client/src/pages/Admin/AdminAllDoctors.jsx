@@ -1,10 +1,23 @@
-import React, { useContext } from 'react'
+import React, { useContext , useEffect } from 'react'
 import AdminNavbar from '../../Components/AdminNavbar'
 import { AppContext } from '../../context/AppContext'
-
+import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 const AdminAllDoctors = () => {
   const { doctors } = useContext(AppContext);
+  const { isAuthenticated, userData ,userRole } = useAuth();
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if(!isAuthenticated){
+      navigate('/login');
+    }
+    if(userRole !== 'admin'){
+      toast.error('You are not an admin');
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
   return (
     <div>
       <AdminNavbar />

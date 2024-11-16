@@ -19,6 +19,12 @@ const Login = () => {
       if (response.role === 'patient') {
         navigate('/myProfile');
       }
+      else if(response.role === 'admin'){
+        navigate('/admin-dashboard');
+      }
+      else{
+        toast.error('Invalid Role');
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
     }
@@ -50,7 +56,7 @@ const Login = () => {
           <p>create a new account - <a onClick={() => navigate("/register")} className='cursor-pointer text-blue-600 decoration-1 underline'>Click here</a></p>
         </div>
       </div> :
-      <h1>Already Registered</h1>
+      <h1>Already Logged In</h1>
       }
     </>
   );

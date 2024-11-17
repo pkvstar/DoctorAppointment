@@ -6,10 +6,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 const AdminAllDoctors = () => {
   const { doctors } = useContext(AppContext);
-  const { isAuthenticated, userData ,userRole } = useAuth();
+  const { isAuthenticated, userData ,userRole , loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if(loading) return;
     if(!isAuthenticated){
       navigate('/login');
     }
@@ -17,7 +18,14 @@ const AdminAllDoctors = () => {
       toast.error('You are not an admin');
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, userRole, navigate, loading]);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
   return (
     <div>
       <AdminNavbar />

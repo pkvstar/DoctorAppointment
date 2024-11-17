@@ -5,10 +5,11 @@ import Navbar from '../Components/Navbar';
 import { toast } from 'react-toastify';
 
 const MyProfile = () => {
-  const { isAuthenticated, userData ,userRole } = useAuth();
+  const { isAuthenticated, userData ,userRole , loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if(loading) return;
     if(!isAuthenticated){
       navigate('/login');
     }
@@ -16,7 +17,7 @@ const MyProfile = () => {
       toast.error('You are not a Patient');
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, userRole, navigate, loading]);
 
   // if (!isAuthenticated) {
   //   return null;
@@ -25,7 +26,7 @@ const MyProfile = () => {
   //   toast.error('You are not a Patient');
   //   navigate('/login');
   // }
-  if (!userData) {
+  if (loading) {
     return (
       <>
         <Navbar />

@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);  // Added loading state
+  const [loading, setLoading] = useState(true); 
 
   const checkAuthStatus = async () => {
     try {
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
       setUserData(null);
       setUserRole(null);
     } finally {
-      setLoading(false); // Set loading to false when data is fetched
+      setLoading(false);
     }
   };
 
@@ -56,8 +56,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    checkAuthStatus();  // Trigger the authentication check on mount
-  }, []);  // Empty dependency array to run once on mount
+    checkAuthStatus();  
+  }, []);  
 
   return (
     <AuthContext.Provider value={{ 
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated,
       login,
       logout,
-      loading  // Provide loading state
+      loading
     }}>
       {children}
     </AuthContext.Provider>

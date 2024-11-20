@@ -2,8 +2,6 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Navbar from '../Components/Navbar';
-// import { login } from '../services/authService';
-// import { AuthContext } from '../context/AuthContext';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {

@@ -6,9 +6,6 @@ const path = require('path');
 const Patient = require('./models/Patient');
 const User = require('./models/User');
 const Admin = require('./models/Admin');
-// const authRoutes = require('./routes/auth');
-// const authMiddleware = require('./middleware/auth');
-// const userRoutes = require('./routes/user');
 
 const jwtSecret = "pkv"
 const PORT = 5000;

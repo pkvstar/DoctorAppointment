@@ -1,13 +1,28 @@
-import React, { useContext , useEffect } from 'react'
+import React, { useState , useEffect } from 'react'
 import AdminNavbar from '../../Components/AdminNavbar'
-import { AppContext } from '../../context/AppContext'
+import doctorProfile from '../../assets/doctor.jpg'
+// import { AppContext } from '../../context/AppContext'
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 const AdminAllDoctors = () => {
-  const { doctors } = useContext(AppContext);
+  // const { doctors } = useContext(AppContext);
+  const [doctors, setDoctors] = useState([]);
   const { isAuthenticated, userData ,userRole , loading } = useAuth();
   const navigate = useNavigate();
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/doctors');
+      setDoctors(response.data); // Assuming the API returns an array of doctors
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
+  useEffect(() => {
+    fetchDoctors();
+  }, []); 
 
   useEffect(() => {
     if(loading) return;
@@ -36,7 +51,7 @@ const AdminAllDoctors = () => {
             <div key={index} className="bg-white rounded-lg shadow-md p-4">
               <div className="flex items-center space-x-4 mb-3">
                 <img 
-                  src={doctor.image} 
+                  src={doctorProfile} 
                   alt={doctor.name}
                   className="w-16 h-16 rounded-full object-cover"
                 />

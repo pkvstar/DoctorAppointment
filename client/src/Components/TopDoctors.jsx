@@ -1,11 +1,21 @@
-import React,{ useContext } from 'react'
-// import { doctors } from '../assets/assetData'
+import React,{ useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppContext } from '../context/AppContext'
-
+import doctorProfile from '../assets/doctor.jpg'
+import axios from 'axios'
 const TopDoctors = () => {
     const navigate = useNavigate();
-    const { doctors } = useContext(AppContext);
+    const [doctors, setDoctors] = useState([]);
+    const fetchDoctors = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/doctors');
+          setDoctors(response.data); // Assuming the API returns an array of doctors
+        } catch (error) {
+          console.error('Error fetching doctors:', error);
+        }
+      };
+      useEffect(() => {
+        fetchDoctors();
+      }, []); 
   return (
     <div className=' flex flex-col items-center gap-4 my-12 md:mx-10'>
         <h1 className=' text-3xl font-Poppins font-semibold'>Popular Doctors</h1>
@@ -13,7 +23,7 @@ const TopDoctors = () => {
             {
                 doctors.slice(0,10).map((doctor,index) => (
                     <div className=' border border-blue-200 hover:shadow-2xl rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500 m-2 bg-white' key={index}>
-                        <img className=' bg-brightYellow ' src={doctor.image} alt={doctor.name} />
+                        <img className=' bg-brightYellow ' src={doctorProfile} alt={doctor.name} />
                         <div className=' p-4'>
                             <div className=' flex items-center gap-2 text-sm text-center text-green-500'>
                                 <span className='w-2 h-2 bg-green-500 rounded-full box'></span><p>Available</p>

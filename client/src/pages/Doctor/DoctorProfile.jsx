@@ -5,6 +5,7 @@ const DoctorProfile = () => {
   // This would typically come from an API
   const doctorInfo = {
     name: 'Dr. John Smith',
+    gender: 'Male',
     specialization: 'Cardiologist',
     experience: '15 years',
     education: 'MD - Cardiology, MBBS',
@@ -52,6 +53,10 @@ const DoctorProfile = () => {
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <h2 className="text-gray-500 text-sm">Name</h2>
                   <p className="font-medium text-darkBlue">{doctorInfo.name}</p>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-lg">
+                  <h2 className="text-gray-500 text-sm">Gender</h2>
+                  <p className="font-medium text-darkBlue">{doctorInfo.gender}</p>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <h2 className="text-gray-500 text-sm">Specialization</h2>

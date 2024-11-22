@@ -6,6 +6,7 @@ const path = require('path');
 const Patient = require('./models/Patient');
 const User = require('./models/User');
 const Admin = require('./models/Admin');
+const Doctor = require('./models/Doctor');
 
 const jwtSecret = "pkv"
 const PORT = 5000;
@@ -32,51 +33,7 @@ app.use(express.static(path.join(__dirname,'public')));
 
 const jwt = require('jsonwebtoken');
 
-//? Register
-app.post('/api/register',async (req,res)=>{
-  const { fullName, email, password, gender, age, bloodType, address } = req.body;
-  if (!fullName || !email || !password || !gender || !age || !bloodType || !address) {
-    return res.status(400).json({ message: 'Please fill all required fields' });
-  }
-  const checkExist = await User.findOne({email});
-  if(checkExist){
-    return res.status(400).json({ message: 'Email is already registered' });
-  }
-  await Patient.create({
-    fullName, email, password, gender, age, bloodType, address ,role:"patient"
-  })
-  await User.create({
-    email, password , role:"patient"
-  })
-  return res.status(201).json({ message: 'Patient registered successfully' });
-})
-
-//? registeration for admin not to shown on frontend only call using postman
-app.post('/api/admin/register',async (req,res)=>{
-  const {name , email , password} = req.body;
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Please fill all required fields' });
-  }
-  const checkExist = await User.findOne({email});
-  if(checkExist){
-    return res.status(400).json({ message: 'Email is already registered' });
-  }
-  try{
-    await User.create({
-      email, password, role:"admin"
-    })
-    await Admin.create({
-      name, email, password
-    })
-    return res.status(201).json({ message: 'Admin registered successfully' });
-  }
-  catch(err){
-    return res.status(500).json({ message: 'Error in registering admin' });
-  }
-})
-
-
-//? LOGIN
+//? LOGIN FOR ALL
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -100,7 +57,6 @@ app.post('/api/login', async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 });
-
 
 //? Authenticate the user using cookie
 app.get('/api/check-auth', (req, res) => {
@@ -152,6 +108,144 @@ app.post('/api/logout', (req, res) => {
     return res.status(500).json({ message: 'Error logging out' });
   }
 });
+
+//? Register for patient
+app.post('/api/register',async (req,res)=>{
+  const { fullName, email, password, gender, age, bloodType, address } = req.body;
+  if (!fullName || !email || !password || !gender || !age || !bloodType || !address) {
+    return res.status(400).json({ message: 'Please fill all required fields' });
+  }
+  const checkExist = await User.findOne({email});
+  if(checkExist){
+    return res.status(400).json({ message: 'Email is already registered' });
+  }
+  await Patient.create({
+    fullName, email, password, gender, age, bloodType, address ,role:"patient"
+  })
+  await User.create({
+    email, password , role:"patient"
+  })
+  return res.status(201).json({ message: 'Patient registered successfully' });
+})
+
+//? Register for ADMIN
+app.post('/api/admin/register',async (req,res)=>{
+  const {name , email , password} = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please fill all required fields' });
+  }
+  const checkExist = await User.findOne({email});
+  if(checkExist){
+    return res.status(400).json({ message: 'Email is already registered' });
+  }
+  try{
+    await User.create({
+      email, password, role:"admin"
+    })
+    await Admin.create({
+      name, email, password
+    })
+    return res.status(201).json({ message: 'Admin registered successfully' });
+  }
+  catch(err){
+    return res.status(500).json({ message: 'Error in registering admin' });
+  }
+})
+
+//? REGISTER for Doctor
+app.post('/api/newDoctor/register', async (req, res) => {
+  try {
+    const {
+      name,
+      speciality,
+      email,
+      password,
+      education,
+      experience,
+      consultationFee,
+      address,
+      about,
+      gender,
+      availability
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Check if doctor already exists
+    const existingDoctor = await Doctor.findOne({ email });
+    if (existingDoctor) {
+      return res.status(400).json({ message: 'Doctor with this email already exists' });
+    }
+
+    // Hash password
+    // const salt = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new doctor document
+    const newDoctor =  await Doctor.create({
+      name,
+      speciality,
+      email,
+      password,
+      education,
+      experience: Number(experience),
+      consultationFee: Number(consultationFee),
+      address,
+      about,
+      gender,
+      availability: JSON.parse(availability || '[]')
+    });
+
+    await User.create({
+      email,
+      password, // Hash this as well
+      role: 'doctor',
+    });
+
+    res.status(201).json({ 
+      message: 'Doctor added successfully', 
+      doctorId: newDoctor._id 
+    });
+  } catch (error) {
+    console.error('Doctor creation error:', error);
+    res.status(500).json({ 
+      message: 'Error adding doctor', 
+      error: error.message 
+    });
+  }
+});
+
+//? fetch doctors all
+app.get('/api/doctors', async (req, res) => {
+  try {
+    const doctors = await Doctor.find();
+    res.json(doctors);
+  } catch (error) {
+    console.error('Fetching doctors error:', error);
+    res.status(500).json({ message: 'Error fetching doctors' });
+  }
+});
+
+//? fetch doctor by id
+app.get('/doctor/:id', async (req, res) => {
+  try {
+    const doctor = await Doctor.findById(req.params.id);
+    if (!doctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+    res.json(doctor);
+  } catch (error) {
+    console.error('Fetching doctor error:', error);
+    res.status(500).json({ message: 'Error fetching doctor' });
+  }
+});
+
+
+
+
 
 //? PORT listen
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,23 +1,27 @@
-import React, { useState , useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminNavbar from '../../Components/AdminNavbar';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AdminDoctorAdd = () => {
-  const { isAuthenticated, userData ,userRole , loading } = useAuth();
+  const { isAuthenticated, userData, userRole, loading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if(loading) return;
-    if(!isAuthenticated){
-      navigate('/login');
-    }
-    if(userRole !== 'admin'){
-      toast.error('You are not an admin');
-      navigate('/');
-    }
-  }, [isAuthenticated, userRole, navigate, loading]);
+  const [doctorData, setDoctorData] = useState({
+    name: '',
+    speciality: 'General physician',
+    email: '',
+    password: '',
+    education: '',
+    experience: '',
+    consultationFee: '',
+    address: '',
+    about: '',
+    gender:''
+  });
+
   const [availability, setAvailability] = useState([
     { day: 'Monday', slots: [] },
     { day: 'Tuesday', slots: [] },
@@ -27,6 +31,25 @@ const AdminDoctorAdd = () => {
     { day: 'Saturday', slots: [] },
     { day: 'Sunday', slots: [] }
   ]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+    if (userRole !== 'admin') {
+      toast.error('You are not an admin');
+      navigate('/');
+    }
+  }, [isAuthenticated, userRole, navigate, loading]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setDoctorData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSlotChange = (dayIndex, slotIndex, value) => {
     const newAvailability = [...availability];
@@ -39,6 +62,30 @@ const AdminDoctorAdd = () => {
     newAvailability[dayIndex].slots.push('');
     setAvailability(newAvailability);
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Validate form data
+    if (!doctorData.name || !doctorData.email || !doctorData.password) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/newDoctor/register', {
+        ...doctorData,
+        availability: JSON.stringify(availability)
+      });
+
+      toast.success('Doctor added successfully');
+      navigate('/admin-dashboard');
+    } catch (error) {
+      console.error('Error adding doctor:', error);
+      toast.error('Failed to add doctor');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -46,36 +93,48 @@ const AdminDoctorAdd = () => {
       </div>
     );
   }
+
   return (
     <div>
       <AdminNavbar />
       <div className="p-4 md:p-8">
         <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center text-darkBlue">Add New Doctor</h2>
         
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center items-center">
-          <div className="w-full md:w-72 flex flex-col items-center justify-center">
-            <div className="mb-6 text-gray-400">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-32 h-32 md:w-48 md:h-48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="8" r="4" strokeWidth="1.5"/>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6"/>
-              </svg>
-            </div>
-            <input type="file" className="hidden" id="doctorImage" accept="image/*"/>
-            <label htmlFor="doctorImage" className="bg-darkBlue text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 transition text-sm md:text-base">
-              Upload Photo
-            </label>
-          </div>
-
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6 md:gap-8 justify-center items-center">
           <div className="w-full max-w-[600px] bg-white rounded-xl shadow-lg p-4 md:p-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Doctor Name</label>
-                <input type="text" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="text" 
+                  name="name"
+                  value={doctorData.name}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-2 text-sm md:text-base">Gender</label>
+                <select 
+                  name="gender"
+                  value={doctorData.gender}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Speciality</label>
-                <select className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base">
+                <select 
+                  name="speciality"
+                  value={doctorData.speciality}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                >
                   <option>General physician</option>
                   <option>Gynecologist</option>
                   <option>Dermatologist</option>
@@ -87,31 +146,72 @@ const AdminDoctorAdd = () => {
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Email</label>
-                <input type="email" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="email" 
+                  name="email"
+                  value={doctorData.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Password</label>
-                <input type="password" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="password" 
+                  name="password"
+                  value={doctorData.password}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Education</label>
-                <input type="text" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="text" 
+                  name="education"
+                  value={doctorData.education}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Experience (years)</label>
-                <input type="number" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="number" 
+                  name="experience"
+                  value={doctorData.experience}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Consultation Fee</label>
-                <input type="number" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="number" 
+                  name="consultationFee"
+                  value={doctorData.consultationFee}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">Address</label>
-                <input type="text" className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"/>
+                <input 
+                  type="text" 
+                  name="address"
+                  value={doctorData.address}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue text-sm md:text-base"
+                />
               </div>
               <div className="col-span-1 sm:col-span-2">
                 <label className="block text-gray-700 mb-2 text-sm md:text-base">About Doctor</label>
-                <textarea className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue h-24 md:h-32 resize-none text-sm md:text-base"></textarea>
+                <textarea 
+                  name="about"
+                  value={doctorData.about}
+                  onChange={handleInputChange}
+                  className="w-full px-3 md:px-4 py-2 border rounded-lg focus:outline-none focus:border-darkBlue h-24 md:h-32 resize-none text-sm md:text-base"
+                ></textarea>
               </div>
             </div>
             <div className="mt-6">
@@ -130,6 +230,7 @@ const AdminDoctorAdd = () => {
                     />
                   ))}
                   <button
+                    type="button"
                     onClick={() => addSlot(dayIndex)}
                     className="text-sm text-skyBlue hover:text-darkBlue transition-colors"
                   >
@@ -138,14 +239,17 @@ const AdminDoctorAdd = () => {
                 </div>
               ))}
             </div>
-            <button className="w-full mt-6 md:mt-8 bg-darkBlue text-white py-2 md:py-3 rounded-lg hover:bg-blue-700 transition text-sm md:text-base">
+            <button 
+              type="submit" 
+              className="w-full mt-6 md:mt-8 bg-darkBlue text-white py-2 md:py-3 rounded-lg hover:bg-blue-700 transition text-sm md:text-base"
+            >
               Add Doctor
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )
 }
 
-export default AdminDoctorAdd
+export default AdminDoctorAdd;

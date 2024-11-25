@@ -7,6 +7,7 @@ const Patient = require('./models/Patient');
 const User = require('./models/User');
 const Admin = require('./models/Admin');
 const Doctor = require('./models/Doctor');
+const Appointment = require('./models/Appointment');
 
 const jwtSecret = "pkv"
 const PORT = 5000;
@@ -79,7 +80,15 @@ app.get('/api/check-auth', (req, res) => {
         });
       }
       else if (data.role === 'doctor') {
-        // Handle doctor logic here
+        const doctor = await Doctor.findOne({ email: data.email });
+        if (!doctor) {
+          return res.json({ isAuthenticated: false });
+        }
+        return res.json({
+          isAuthenticated: true,
+          role: data.role,
+          dataRole: doctor
+        });
       }
       else {
         const admin = await Admin.findOne({ email: data.email });
@@ -243,9 +252,82 @@ app.get('/doctor/:id', async (req, res) => {
   }
 });
 
+//? fetch all patients
+app.get('/api/patients', async (req, res) => {
+  try {
+    const patients = await Patient.find();
+    res.json(patients);
+  } catch (error) {
+    console.error('Fetching patients error:', error);
+    res.status(500).json({ message: 'Error fetching patients' });
+  }
+});
 
+//? Create an appointment
+app.post('/api/appointments', async (req, res) => {
+  const { doctorId, patientId, date, time } = req.body;
+  try {
+    const newAppointment = await Appointment.create({
+      doctor: doctorId,
+      patient: patientId,
+      date,
+      time,
+      status: 'pending'
+    });
+    res.status(201).json({ message: 'Appointment created successfully', appointment: newAppointment });
+  } catch (error) {
+    console.error('Error creating appointment:', error);
+    res.status(500).json({ message: 'Error creating appointment' });
+  }
+});
 
+//? fetch appointment information for admin
+app.get('/api/adminAppointments', async (req, res) => {
+  try {
+    const appointments = await Appointment.find().populate('doctor').populate('patient');
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ message: 'Error fetching appointments' });
+  }
+});
 
+//? Fetch appointments for a patient
+app.get('/api/appointments/:patientId', async (req, res) => {
+  try {
+    const appointments = await Appointment.find({ patient: req.params.patientId }).populate('doctor');
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ message: 'Error fetching appointments' });
+  }
+});
+
+//? fetch appointments for a doctor
+app.get('/api/doctorAppointments/:doctorId', async (req, res) => {
+  try {
+    const appointments = await Appointment.find({ doctor: req.params.doctorId }).populate('patient');
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching doctor appointments:', error);
+    res.status(500).json({ message: 'Error fetching doctor appointments' });
+  }
+});
+
+//? Update an appointment status
+app.put('/api/appointments/:appointmentId', async (req, res) => {
+  const { status } = req.body;
+  try {
+    const appointment = await Appointment.findByIdAndUpdate(req.params.appointmentId, { status }, { new: true });
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    res.json({ message: 'Appointment status updated successfully', appointment });
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
+    res.status(500).json({ message: 'Error updating appointment status' });
+  }
+});
 
 //? PORT listen
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

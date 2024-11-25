@@ -3,8 +3,10 @@ import AdminNavbar from '../../Components/AdminNavbar'
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'
 const AdminAppointment = () => {
   const { isAuthenticated, userData ,userRole , loading } = useAuth();
+  const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -15,36 +17,20 @@ const AdminAppointment = () => {
     if(userRole !== 'admin'){
       toast.error('You are not an admin');
       navigate('/');
+    }else{
+      fetchAppointments();
     }
   }, [isAuthenticated, userRole, navigate, loading]);
 
-  const [appointments, setAppointments] = useState([
-    {
-      doctorName: "Dr. Sarah Wilson",
-      patientName: "John Smith", 
-      status: "Completed"
-    },
-    {
-      doctorName: "Dr. Michael Chen",
-      patientName: "Emily Johnson",
-      status: "Pending"
-    },
-    {
-      doctorName: "Dr. Jessica Patel",
-      patientName: "Robert Williams",
-      status: "Cancelled"
-    },
-    {
-      doctorName: "Dr. David Kim",
-      patientName: "Maria Garcia",
-      status: "Completed"
-    },
-    {
-      doctorName: "Dr. Rachel Brown",
-      patientName: "James Anderson",
-      status: "Pending"
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/adminAppointments');
+      setAppointments(response.data);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      toast.error('Failed to load appointments');
     }
-  ])
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -70,12 +56,12 @@ const AdminAppointment = () => {
             <tbody className="divide-y divide-gray-200">
               {appointments.map((appointment, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-800">{appointment.doctorName}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800">{appointment.patientName}</td>
+                  <td className="px-6 py-4 text-sm text-gray-800">{appointment.doctor.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-800">{appointment.patient.fullName}</td>
                   <td className="px-6 py-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${appointment.status === 'Completed' ? 'bg-green-100 text-green-800' : 
-                        appointment.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                      ${(appointment.status === 'completed' || appointment.status === 'accepted') ? 'bg-green-100 text-green-800' : 
+                        appointment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                         'bg-red-100 text-red-800'}`}>
                       {appointment.status}
                     </span>

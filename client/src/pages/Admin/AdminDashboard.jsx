@@ -1,11 +1,14 @@
 import AdminNavbar from '../../Components/AdminNavbar'
-import React, { useEffect } from 'react';
+import React, { useEffect ,useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axios from 'axios'
+
 
 const AdminDashboard = () => {
-  const { isAuthenticated, userData, userRole, loading } = useAuth();
+  const { isAuthenticated, userRole, loading , doctors , patients } = useAuth();
+  const [appointments, setAppointments] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,8 +20,19 @@ const AdminDashboard = () => {
       toast.error('You are not an admin');
       navigate('/');
     }
-  }, [isAuthenticated, userRole, navigate, loading]);
-
+    else{
+        fetchAppointments();
+    }
+  }, [isAuthenticated, userRole, navigate, loading,doctors]);
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/adminAppointments');
+      setAppointments(response.data);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      toast.error('Failed to load appointments');
+    }
+  };
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -37,7 +51,7 @@ const AdminDashboard = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm">Total Patients</p>
-                            <h3 className="text-2xl font-semibold mt-2">1,234</h3>
+                            <h3 className="text-2xl font-semibold mt-2">{patients.length}</h3>
                         </div>
                         <div className="bg-blue-100 p-3 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,7 +66,7 @@ const AdminDashboard = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm">Total Doctors</p>
-                            <h3 className="text-2xl font-semibold mt-2">48</h3>
+                            <h3 className="text-2xl font-semibold mt-2">{doctors.length}</h3>
                         </div>
                         <div className="bg-green-100 p-3 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -67,7 +81,7 @@ const AdminDashboard = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-gray-500 text-sm">Total Appointments</p>
-                            <h3 className="text-2xl font-semibold mt-2">3,879</h3>
+                            <h3 className="text-2xl font-semibold mt-2">{appointments.length}</h3>
                         </div>
                         <div className="bg-purple-100 p-3 rounded-full">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

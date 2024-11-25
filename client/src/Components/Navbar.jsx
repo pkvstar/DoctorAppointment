@@ -20,8 +20,8 @@ const Navbar = () => {
 
   return (
     <div className='text-sm flex justify-between items-center font-Poppins py-4 mb-5 border-b-slate-500 border-b'>
-      <img src={NavLogo} className='w-48 cursor-pointer' alt="HealthLink Logo" />
-      <div className='hidden md:flex items-center gap-8 font-medium'>
+      <img src={NavLogo} className='w-48 cursor-pointer max-md:w-36' alt="HealthLink Logo" />
+      <div className='flex items-center gap-8 font-medium'>
         <NavLink to="/">
           <p>HOME</p>
           <hr className='hidden border-none outline-none h-0.5 bg-skyBlue m-auto w-3/4' alt="Home Link" />
@@ -30,7 +30,7 @@ const Navbar = () => {
           <p>ALL DOCTORS</p>
           <hr className='hidden border-none outline-none h-0.5 bg-skyBlue m-auto w-3/4' alt="All Doctors Link" />
         </NavLink>
-        <NavLink to="/contact">
+        <NavLink to="/contact" className='max-md:hidden'>
           <p>CONTACT US</p>
           <hr className='hidden border-none outline-none h-0.5 bg-skyBlue m-auto w-3/4' alt="Contact Us Link" />
         </NavLink>

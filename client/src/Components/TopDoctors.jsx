@@ -1,21 +1,25 @@
 import React,{ useState,useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import doctorProfile from '../assets/doctor.jpg'
-import axios from 'axios'
+import { useAuth } from '../context/AuthContext';
+
+// import axios from 'axios'
 const TopDoctors = () => {
     const navigate = useNavigate();
-    const [doctors, setDoctors] = useState([]);
-    const fetchDoctors = async () => {
-        try {
-          const response = await axios.get('http://localhost:5000/api/doctors');
-          setDoctors(response.data); // Assuming the API returns an array of doctors
-        } catch (error) {
-          console.error('Error fetching doctors:', error);
-        }
-      };
-      useEffect(() => {
-        fetchDoctors();
-      }, []); 
+    // const [doctors, setDoctors] = useState([]);
+    const { doctors } = useAuth();
+    // const fetchDoctors = async () => {
+    //     try {
+    //       const response = await axios.get('http://localhost:5000/api/doctors');
+    //       setDoctors(response.data); // Assuming the API returns an array of doctors
+    //     } catch (error) {
+    //       console.error('Error fetching doctors:', error);
+    //     }
+    //   };
+    //   useEffect(() => {
+    //     fetchDoctors();
+    //   }, []); 
+
   return (
     <div className=' flex flex-col items-center gap-4 my-12 md:mx-10'>
         <h1 className=' text-3xl font-Poppins font-semibold'>Popular Doctors</h1>

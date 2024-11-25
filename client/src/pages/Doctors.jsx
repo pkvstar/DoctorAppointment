@@ -1,24 +1,28 @@
 import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+// import { useAuth } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import Navbar from '../Components/Navbar';
 import { useNavigate, useParams } from 'react-router-dom';
 import Footer from '../Components/Footer';
 import doctorProfile from '../assets/doctor.jpg'
 const Doctors = () => {
   const { speciality } = useParams();
-  const [doctors, setDoctors] = useState([]);
+  // const [doctors, setDoctors] = useState([]);
+  const { doctors } = useAuth();
+  console.log(doctors);
   const [specialDoc, setSpecialDoc] = useState([]);
   const navigate = useNavigate();
 
   // Fetch doctors from the backend
-  const fetchDoctors = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/doctors');
-      setDoctors(response.data); // Assuming the API returns an array of doctors
-    } catch (error) {
-      console.error('Error fetching doctors:', error);
-    }
-  };
+  // const fetchDoctors = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:5000/api/doctors');
+  //     setDoctors(response.data); // Assuming the API returns an array of doctors
+  //   } catch (error) {
+  //     console.error('Error fetching doctors:', error);
+  //   }
+  // };
 
   // Filter doctors based on speciality
   const filterDoctors = () => {
@@ -29,9 +33,9 @@ const Doctors = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDoctors();
-  }, []); // Run once when the component mounts
+  // useEffect(() => {
+  //   fetchDoctors();
+  // }, []); // Run once when the component mounts
 
   useEffect(() => {
     filterDoctors();

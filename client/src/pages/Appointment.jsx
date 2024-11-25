@@ -13,7 +13,7 @@ import doctorProfile from '../assets/doctor.jpg'
 
 const Appointment = () => {
   const { docId } = useParams();
-  const { isAuthenticated,userRole } = useContext(AuthContext);
+  const { isAuthenticated,userRole, userData } = useContext(AuthContext);
   const navigate = useNavigate();
   const [docInfo, setDocInfo] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -55,12 +55,13 @@ const Appointment = () => {
       navigate('/login');
       return;
     }
-    if(userRole != 'patient'){
+    if (userRole !== 'patient') {
       toast.error('You are not a Patient');
       navigate('/');
+      return;
     }
 
-    if (!selectedDate || !selectedTime) {
+    if (selectedDate===null || !selectedTime) {
       toast.error('Please select a date and time for your appointment');
       return;
     }
@@ -69,15 +70,17 @@ const Appointment = () => {
     date.setDate(date.getDate() + selectedDate);
 
     const bookingData = {
-      doctorId: docId,
+      doctorId: docId, // Doctor ID
+      patientId: userData._id, // Patient ID
       date: date.toISOString().split('T')[0], // YYYY-MM-DD format
-      timeSlot: selectedTime,
+      time: selectedTime, // Selected time slot
+      status: 'pending' // Initial status
     };
 
     try {
-      await axios.post(`http://localhost:5000/appointment/${docId}`, bookingData);
+      await axios.post(`http://localhost:5000/api/appointments`, bookingData);
       toast.success('Appointment Booked Successfully');
-      navigate('/appointments');
+      navigate('/myProfile');
     } catch (error) {
       console.error('Error booking appointment:', error);
       toast.error('Failed to book the appointment. Please try again.');
@@ -176,7 +179,6 @@ const Appointment = () => {
 };
 
 export default Appointment;
-
 
 
 

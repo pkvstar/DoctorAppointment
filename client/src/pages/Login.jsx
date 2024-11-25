@@ -20,6 +20,9 @@ const Login = () => {
       else if(response.role === 'admin'){
         navigate('/admin-dashboard');
       }
+      else if(response.role === 'doctor'){
+        navigate('/doctor-dashboard');
+      }
       else{
         toast.error('Invalid Role');
       }

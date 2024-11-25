@@ -79,7 +79,7 @@ const AdminDoctorAdd = () => {
       });
 
       toast.success('Doctor added successfully');
-      navigate('/admin-dashboard');
+      // navigate('/admin-dashboard');
     } catch (error) {
       console.error('Error adding doctor:', error);
       toast.error('Failed to add doctor');

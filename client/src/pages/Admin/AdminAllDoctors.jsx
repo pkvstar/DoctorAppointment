@@ -8,21 +8,21 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const AdminAllDoctors = () => {
   // const { doctors } = useContext(AppContext);
-  const [doctors, setDoctors] = useState([]);
-  const { isAuthenticated, userData ,userRole , loading } = useAuth();
+  // const [doctors, setDoctors] = useState([]);
+  const { isAuthenticated, userData ,userRole , loading , doctors } = useAuth();
   const navigate = useNavigate();
 
-  const fetchDoctors = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/api/doctors');
-      setDoctors(response.data); // Assuming the API returns an array of doctors
-    } catch (error) {
-      console.error('Error fetching doctors:', error);
-    }
-  };
-  useEffect(() => {
-    fetchDoctors();
-  }, []); 
+  // const fetchDoctors = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:5000/api/doctors');
+  //     setDoctors(response.data); // Assuming the API returns an array of doctors
+  //   } catch (error) {
+  //     console.error('Error fetching doctors:', error);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchDoctors();
+  // }, []); 
 
   useEffect(() => {
     if(loading) return;
@@ -33,7 +33,7 @@ const AdminAllDoctors = () => {
       toast.error('You are not an admin');
       navigate('/');
     }
-  }, [isAuthenticated, userRole, navigate, loading]);
+  }, [isAuthenticated, userRole, navigate, loading , doctors]);
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">

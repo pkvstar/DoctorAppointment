@@ -1,41 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DoctorNavbar from '../../components/DoctorNavbar';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios'
 
 const DoctorAppointment = () => {
-  // This would typically come from an API
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patientName: 'John Doe',
-      date: '2024-03-20',
-      time: '10:00 AM',
-      age: 35,
-      status: 'pending'
-    },
-    {
-        id: 2,
-        patientName: 'Johny man',
-        date: '2024-03-20',
-        time: '11:00 AM',
-        age: 30,
-        status: 'pending'
-      },
-      {
-        id: 3,
-        patientName: 'Sarah',
-        date: '2024-03-22',
-        time: '09:00 AM',
-        age: 26,
-        status: 'pending'
-      },
-    // Add more appointments as needed
-  ]);
-
-  const handleAppointmentStatus = (id, status) => {
-    setAppointments(appointments.map(app => 
-      app.id === id ? {...app, status} : app
-    ));
+  const { isAuthenticated, userRole, loading , userData } = useAuth();
+  const [appointments, setAppointments] = useState([]);
+  const navigate = useNavigate();
+  const fetchAppointments = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/doctorAppointments/${userData._id}`);
+      console.log(response)
+      setAppointments(response.data);
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      toast.error('Failed to load appointments');
+    }
   };
+  const changeAppointmentStatus = async (id,status)=>{
+    try {
+      const response = await axios.put(`http://localhost:5000/api/appointments/${id}`, {status});
+      toast.success('Appointment status changed successfully');
+      fetchAppointments();
+    } catch (error) {
+      console.error('Error changing appointment status:', error);
+      toast.error('Failed to change appointment status');
+    }
+  }
+  useEffect(() => {
+    if (loading) return; 
+
+    if (!isAuthenticated) {
+      navigate('/login');
+    } else if (userRole !== 'doctor') {
+      toast.error('You are not a doctor');
+      navigate('/');
+    }
+    else{
+      fetchAppointments();
+    }
+  }, [isAuthenticated, userRole, navigate, loading , userData]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -62,21 +76,21 @@ const DoctorAppointment = () => {
                     key={appointment.id} 
                     className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-700">{appointment.patientName}</td>
-                    <td className="px-6 py-4 text-gray-600">{appointment.date}</td>
+                    <td className="px-6 py-4 font-medium text-gray-700">{appointment.patient.fullName}</td>
+                    <td className="px-6 py-4 text-gray-600">{new Date(appointment.date).toLocaleDateString()}</td>
                     <td className="px-6 py-4 text-gray-600">{appointment.time}</td>
-                    <td className="px-6 py-4 text-gray-600">{appointment.age}</td>
+                    <td className="px-6 py-4 text-gray-600">{appointment.patient.age}</td>
                     <td className="px-6 py-4">
                       {appointment.status === 'pending' ? (
                         <div className="space-x-3">
                           <button 
-                            onClick={() => handleAppointmentStatus(appointment.id, 'accepted')}
+                            onClick={() => changeAppointmentStatus(appointment._id,'accepted')}
                             className="bg-green-100 text-green-800 hover:bg-green-200 px-4 py-2 rounded-md transition-colors duration-200 font-medium text-sm"
                           >
                             Accept
                           </button>
                           <button 
-                            onClick={() => handleAppointmentStatus(appointment.id, 'rejected')}
+                            onClick={() => changeAppointmentStatus(appointment._id,'rejected')}
                             className="bg-red-100 text-red-800 hover:bg-red-200 px-4 py-2 rounded-md transition-colors duration-200 font-medium text-sm"
                           >
                             Reject

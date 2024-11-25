@@ -8,6 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true); 
+  const [doctors, setDoctors] = useState([]);
+  const [patients, setPatients] = useState([]);
 
   const checkAuthStatus = async () => {
     try {
@@ -54,10 +56,30 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
     }
   };
-
+  const fetchDoctors = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/doctors');
+      setDoctors(response.data); // Assuming the API returns an array of doctors
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
+  
+  const fetchPatients = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/patients');
+      setPatients(response.data);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  };
   useEffect(() => {
-    checkAuthStatus();  
+    checkAuthStatus();
+    fetchPatients();  
   }, []);  
+  useEffect(()=>{
+    fetchDoctors();
+  },[])
 
   return (
     <AuthContext.Provider value={{ 
@@ -67,6 +89,8 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated,
       login,
       logout,
+      doctors,
+      patients,
       loading
     }}>
       {children}

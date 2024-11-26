@@ -267,14 +267,20 @@ app.get('/api/patients', async (req, res) => {
 app.post('/api/appointments', async (req, res) => {
   const { doctorId, patientId, date, time } = req.body;
   try {
-    const newAppointment = await Appointment.create({
-      doctor: doctorId,
-      patient: patientId,
-      date,
-      time,
-      status: 'pending'
-    });
-    res.status(201).json({ message: 'Appointment created successfully', appointment: newAppointment });
+    const appointment = await Appointment.findOne({doctor:doctorId , date: date ,time: time});
+    if(appointment){
+      return res.status(200).json({ message: 'Appointment already exists for this date and time' });
+    }
+    else{
+      const newAppointment = await Appointment.create({
+        doctor: doctorId,
+        patient: patientId,
+        date,
+        time,
+        status: 'pending'
+      });
+      res.status(201).json({ message: 'Appointment created successfully', appointment: newAppointment });
+    }
   } catch (error) {
     console.error('Error creating appointment:', error);
     res.status(500).json({ message: 'Error creating appointment' });

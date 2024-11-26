@@ -78,9 +78,14 @@ const Appointment = () => {
     };
 
     try {
-      await axios.post(`http://localhost:5000/api/appointments`, bookingData);
-      toast.success('Appointment Booked Successfully');
-      navigate('/myProfile');
+      let res = await axios.post(`http://localhost:5000/api/appointments`, bookingData);
+      if(res.data.message === 'Appointment created successfully' ){
+        toast.success('Appointment Booked Successfully');
+        navigate('/myProfile');
+      }
+      else{
+        toast.warning('Already Booked by other Patient');
+      }
     } catch (error) {
       console.error('Error booking appointment:', error);
       toast.error('Failed to book the appointment. Please try again.');

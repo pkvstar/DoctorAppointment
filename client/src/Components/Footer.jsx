@@ -10,7 +10,8 @@ const Upper = () => {
       <div className='w-full flex md:flex-row flex-col mb-3'>
         <div className='w-full md:w-1/2 flex flex-col gap-3 pr-2 mb-3'>
           <h1 className=' text-2xl font-Poppins font-semibold'><span className=' text-red-700'>H</span>EALTH <span className=' text-red-700'>L</span>INK</h1>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel sed harum dicta ullam facere? Autem mollitia quos eum iure distinctio, amet veritatis, maxime illum esse eligendi iusto dolore excepturi qui.</p>
+          <p>Our mission is to simplify healthcare access by connecting patients with qualified doctors. We provide a seamless experience to manage your health needs, ensuring convenience, security, and care at every step.</p>
+          <b>Your Health, Our Priority</b>
         </div>
         <div className='w-full md:w-1/2 flex flex-col gap-3 md:pl-[20%]'>
           <p className=' text-xl font-medium text-black'>GET IN TOUCH</p>

@@ -65,8 +65,6 @@ const AdminDoctorAdd = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validate form data
     if (!doctorData.name || !doctorData.email || !doctorData.password) {
       toast.error('Please fill in all required fields');
       return;
@@ -79,7 +77,6 @@ const AdminDoctorAdd = () => {
       });
 
       toast.success('Doctor added successfully');
-      // navigate('/admin-dashboard');
     } catch (error) {
       console.error('Error adding doctor:', error);
       toast.error('Failed to add doctor');

@@ -19,7 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className='text-sm flex justify-between items-center font-Poppins py-4 mb-5 border-b-slate-500 border-b'>
+    <div className='text-sm flex justify-between items-center font-Poppins py-4 mb-5 border-b-gray-300 border-b'>
       <img src={NavLogo} className='w-48 cursor-pointer max-md:w-36' alt="HealthLink Logo" />
       <div className='flex items-center gap-8 font-medium'>
         <NavLink to="/">

@@ -178,17 +178,14 @@ app.post('/api/newDoctor/register', async (req, res) => {
       availability
     } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Check if doctor already exists
     const existingDoctor = await Doctor.findOne({ email });
     if (existingDoctor) {
       return res.status(400).json({ message: 'Doctor with this email already exists' });
     }
-
     // Hash password
     // const salt = await bcrypt.genSalt(10);
     // const hashedPassword = await bcrypt.hash(password, salt);
@@ -334,6 +331,47 @@ app.put('/api/appointments/:appointmentId', async (req, res) => {
     res.status(500).json({ message: 'Error updating appointment status' });
   }
 });
+
+//? Get Appointment info for both doctor and patient for chat
+app.get('/api/appointments/:appointmentId/chat', async (req, res) => {
+  const {appointmentId} = req.params;
+  try{
+    const appointment = await Appointment.findOne({_id:appointmentId});
+    res.status(200).json({
+      success: true,
+      messages: appointment.messages || [],
+    });
+  }catch(err){
+    console.error('Error getting appointment messages', err);
+    res.status(500).json({ message: 'Error getting appointment messages' });
+  }
+})
+
+//? Post Appointment info for both doctor and patient for chat
+app.post('/api/appointments/:appointmentId/chat', async (req, res) => {
+  const { appointmentId } = req.params;
+  const { sender, message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ message: 'Message cannot be empty' });
+  }
+
+  try {
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    appointment.messages.push({ sender, message });
+    await appointment.save();
+
+    res.status(200).json({ message: 'Message sent successfully', messages: appointment.messages });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ message: 'Error sending message' });
+  }
+});
+
 
 //? PORT listen
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -19,6 +19,7 @@ import AdminAppointment from './pages/Admin/AdminAppointment';
 import AdminAllDoctors from './pages/Admin/AdminAllDoctors';
 import AdminDoctorReq from './pages/Admin/AdminDoctorAdd';
 import { AuthProvider } from './context/AuthContext';
+import Chat from './pages/Chat'
 
 const App = () => {
   return (
@@ -42,6 +43,7 @@ const App = () => {
           <Route path='/myProfile' element={<MyProfile />} />
           <Route path='/myAppointments' element={<MyAppointments />} />
           <Route path='/appointment/:docId' element={<Appointment />} />
+          <Route path='/chat/:appointmentId' element={<Chat/>}/>
           <Route path='*' element={<Notexist />} />
         </Routes>
       </div>

@@ -102,7 +102,7 @@ const MyAppointments = () => {
                           {appointment.status}
                         </div>
                         {(appointment.status === 'accepted') ? 
-                          <button className='px-6 py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors' onClick={() => console.log('Chat functionality not implemented yet.')}>
+                          <button className='px-6 py-3 border-2 border-blue-500 text-blue-500 hover:bg-blue-50 rounded-xl transition-colors' onClick={() => navigate(`/chat/${appointment._id}`)}>
                             Chat
                           </button>
                          :

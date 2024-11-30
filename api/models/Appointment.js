@@ -5,7 +5,8 @@ const appointmentSchema = new mongoose.Schema({
   patient: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   date: { type: Date, required: true },
   time: { type: String, required: true },
-  status: { type: String, enum: ['pending', 'accepted', 'rejected', 'completed'], default: 'pending' }
+  status: { type: String, enum: ['pending', 'accepted', 'rejected', 'completed'], default: 'pending' },
+  messages: []
 });
 
 module.exports = mongoose.model('Appointment', appointmentSchema); 

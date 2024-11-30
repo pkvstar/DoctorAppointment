@@ -1,29 +1,13 @@
 import React, { useState , useEffect } from 'react'
 import AdminNavbar from '../../Components/AdminNavbar'
 import doctorProfile from '../../assets/doctor.jpg'
-// import { AppContext } from '../../context/AppContext'
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const AdminAllDoctors = () => {
-  // const { doctors } = useContext(AppContext);
-  // const [doctors, setDoctors] = useState([]);
   const { isAuthenticated, userData ,userRole , loading , doctors } = useAuth();
   const navigate = useNavigate();
-
-  // const fetchDoctors = async () => {
-  //   try {
-  //     const response = await axios.get('http://localhost:5000/api/doctors');
-  //     setDoctors(response.data); // Assuming the API returns an array of doctors
-  //   } catch (error) {
-  //     console.error('Error fetching doctors:', error);
-  //   }
-  // };
-  // useEffect(() => {
-  //   fetchDoctors();
-  // }, []); 
-
   useEffect(() => {
     if(loading) return;
     if(!isAuthenticated){
@@ -59,14 +43,6 @@ const AdminAllDoctors = () => {
                   <h3 className="font-semibold text-lg">{doctor.name}</h3>
                   <p className="text-gray-600">{doctor.speciality}</p>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-3 py-1 bg-blue-100 text-blue-800 rounded">
-                  Show More
-                </button>
-                <button className="px-3 py-1 bg-red-100 text-red-800 rounded">
-                  Delete
-                </button>
               </div>
             </div>
           ))}

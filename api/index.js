@@ -8,6 +8,7 @@ const User = require('./models/User');
 const Admin = require('./models/Admin');
 const Doctor = require('./models/Doctor');
 const Appointment = require('./models/Appointment');
+const bcrypt = require('bcrypt');
 
 const jwtSecret = "pkv"
 const PORT = 5000;
@@ -43,7 +44,8 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' }); 
     }
 
-    if (user.password !== password) { //! i will use bcrypt here
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -128,11 +130,12 @@ app.post('/api/register',async (req,res)=>{
   if(checkExist){
     return res.status(400).json({ message: 'Email is already registered' });
   }
+  const hashedPassword = await bcrypt.hash(password, 10);
   await Patient.create({
-    fullName, email, password, gender, age, bloodType, address ,role:"patient"
+    fullName, email, password: hashedPassword, gender, age, bloodType, address ,role:"patient"
   })
   await User.create({
-    email, password , role:"patient"
+    email, password: hashedPassword, role:"patient"
   })
   return res.status(201).json({ message: 'Patient registered successfully' });
 })
@@ -148,11 +151,12 @@ app.post('/api/admin/register',async (req,res)=>{
     return res.status(400).json({ message: 'Email is already registered' });
   }
   try{
+    const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
-      email, password, role:"admin"
+      email, password: hashedPassword, role:"admin"
     })
     await Admin.create({
-      name, email, password
+      name, email, password: hashedPassword
     })
     return res.status(201).json({ message: 'Admin registered successfully' });
   }
@@ -186,16 +190,13 @@ app.post('/api/newDoctor/register', async (req, res) => {
     if (existingDoctor) {
       return res.status(400).json({ message: 'Doctor with this email already exists' });
     }
-    // Hash password
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     // Create new doctor document
     const newDoctor =  await Doctor.create({
       name,
       speciality,
       email,
-      password,
+      password: hashedPassword,
       education,
       experience: Number(experience),
       consultationFee: Number(consultationFee),
@@ -207,7 +208,7 @@ app.post('/api/newDoctor/register', async (req, res) => {
 
     await User.create({
       email,
-      password, // Hash this as well
+      password: hashedPassword,
       role: 'doctor',
     });
 
